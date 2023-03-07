@@ -18,9 +18,34 @@
 </head>
 <body>
 
+
+<select id="form-bread_type" name="bread_type" class="form-select form-bread_type selectpicker" multiple="" data-width="auto" data-dropup-auto="false" data-display="static">
+  <optgroup label="Sliced Bread">     
+    <option value="sliced+bread" data-parent="0">Sliced Bread</option>
+
+    <option value="white+bread" data-parent="sliced+bread">- White Bread</option>
+
+    <option value="whole+wheat+bread" data-parent="sliced+bread">- Whole Wheat Bread</option>
+  </optgroup>
+  <optgroup label="Buns &amp; Rolls">
+    <option value="buns+%26+rolls" data-parent="0">Buns &amp; Rolls</option>
+
+    <option value="baguettes" data-parent="buns+%26+rolls">- Baguettes</option>
+
+    <option value="hamburger+buns" data-parent="buns+%26+rolls">- Hamburger Buns</option>
+
+    <option value="sausage+buns" data-parent="buns+%26+rolls">- Sausage Buns</option>
+
+    <option value="dinner+%26+salad+rolls" data-parent="buns+%26+rolls">- Dinner &amp; Salad Rolls</option>
+  </optgroup>
+</select>
+
+
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.bundle.min.js"></script>
 <script src="../js/bootstrap-select.js"></script>
 
 </body>
 </html>
+
+

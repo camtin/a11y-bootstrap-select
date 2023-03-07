@@ -338,11 +338,11 @@ select.selectpicker {
         color: $input-alt-color-placeholder !important;
       }
 
-      &.disabled a {
+      &.disabled a, &.disabled .dropdown-item {
         @include cursor-disabled();
       }
 
-      a {
+      a, .dropdown-item {
         cursor: pointer;
         user-select: none;
 
@@ -423,7 +423,7 @@ select.selectpicker {
       top: 5px;
     }
 
-    li a span.text {
+    li a span.text, li .dropdown-item span.text {
       margin-right: 34px;
     }
   }

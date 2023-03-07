@@ -683,7 +683,8 @@
     span: document.createElement('span'),
     i: document.createElement('i'),
     subtext: document.createElement('small'),
-    a: document.createElement('a'),
+    // TODO remove <a>
+    a: document.createElement('span'),
     li: document.createElement('li'),
     whitespace: document.createTextNode('\u00A0'),
     fragment: document.createDocumentFragment(),
@@ -696,7 +697,11 @@
   elementTemplates.noResults = elementTemplates.li.cloneNode(false);
   elementTemplates.noResults.className = 'no-results';
 
-  elementTemplates.a.setAttribute('role', 'option');
+  elementTemplates.li.setAttribute('role', 'option');
+  // elementTemplates.li.className = 'dropdown-item';
+
+  // TODO remove <a>
+  // elementTemplates.a.setAttribute('role', 'option');
   elementTemplates.a.className = 'dropdown-item';
 
   elementTemplates.subtext.className = 'text-muted';
@@ -711,6 +716,7 @@
 
   var generateOption = {
     li: function (content, classes, optgroup) {
+      console.log(content);
       var li = elementTemplates.li.cloneNode(false);
 
       if (content) {
@@ -728,6 +734,7 @@
     },
 
     a: function (text, classes, inline) {
+      console.log(inline);
       var a = elementTemplates.a.cloneNode(true);
 
       if (text) {
@@ -740,7 +747,7 @@
 
       if (typeof classes !== 'undefined' && classes !== '') a.classList.add.apply(a.classList, classes.split(/\s+/));
       if (inline) a.setAttribute('style', inline);
-
+      
       return a;
     },
 
@@ -991,7 +998,7 @@
     },
     maxOptions: false,
     mobile: false,
-    selectOnTab: true,
+    selectOnTab: false,
     dropdownAlignRight: false,
     windowPadding: 0,
     virtualScroll: 600,
@@ -1013,6 +1020,9 @@
 
       selectId++;
       this.selectId = 'bs-select-' + selectId;
+
+      // add tabindex -1 and aria hidden to hidden <select> element
+      this.$element.attr('tabindex', '-1').attr('aria-hidden', 'true');
 
       element.classList.add('bs-select-hidden');
 
@@ -1142,6 +1152,7 @@
       // Options
       // If we are multiple or showTick option is set, then add the show-tick class
       var showTick = (this.multiple || this.options.showTick) ? ' show-tick' : '',
+          // multiselectable = this.multiple ? ' aria-multiselectable="true"' : '',
           multiselectable = this.multiple ? ' aria-multiselectable="true"' : '',
           inputGroup = '',
           autofocus = this.autofocus ? ' autofocus' : '';
@@ -1210,15 +1221,16 @@
 
       drop =
         '<div class="dropdown bootstrap-select' + showTick + inputGroup + '">' +
-          '<button type="button" tabindex="-1" class="' +
+          '<button type="button" tabindex="0" class="' +
             this.options.styleBase +
             ' dropdown-toggle" ' +
             (this.options.display === 'static' ? 'data-display="static"' : '') +
             Selector.DATA_TOGGLE +
             autofocus +
-            ' role="combobox" aria-owns="' +
-            this.selectId +
-            '" aria-haspopup="listbox" aria-expanded="false">' +
+            ' role="combobox"' +
+            ' aria-controls="' + this.selectId + '"' +
+            ' aria-haspopup="listbox"' +
+            ' aria-expanded="false">' +
             '<div class="filter-option">' +
               '<div class="filter-option-inner">' +
                 '<div class="filter-option-inner-inner">&nbsp;</div>' +
@@ -1234,16 +1246,16 @@
               '</span>'
             ) +
           '</button>' +
-          '<div class="' + classNames.MENU + ' ' + (version.major >= '4' ? '' : classNames.SHOW) + '">' +
-            header +
-            searchbox +
-            actionsbox +
-            '<div class="inner ' + classNames.SHOW + '" role="listbox" id="' + this.selectId + '" tabindex="-1" ' + multiselectable + '>' +
-                '<ul class="' + classNames.MENU + ' inner ' + (version.major >= '4' ? classNames.SHOW : '') + '" role="presentation">' +
+           '<div class="' + classNames.MENU + ' ' + (version.major >= '4' ? '' : classNames.SHOW) + '">' +
+             header +
+             searchbox +
+             actionsbox +
+             '<div class="inner ' + classNames.SHOW + '" id="' + this.selectId + '" '  + '>' +
+                '<ul class="' + classNames.MENU + ' inner ' + (version.major >= '4' ? classNames.SHOW : '') + '" role="listbox" ' + multiselectable + '>' +
                 '</ul>' +
-            '</div>' +
-            donebutton +
-          '</div>' +
+             '</div>' +
+             donebutton +
+           '</div>' +
         '</div>';
 
       return $(drop);
@@ -1533,11 +1545,14 @@
         var a = li.firstChild;
 
         if (a) {
-          a.setAttribute('aria-setsize', this.selectpicker.view.size);
-          a.setAttribute('aria-posinset', liData.posinset);
+          // NL TODO maybe remove
+          // a.setAttribute('aria-setsize', this.selectpicker.view.size);
+          // a.setAttribute('aria-posinset', liData.posinset);
 
           if (noStyle !== true) {
-            this.focusedParent.setAttribute('aria-activedescendant', a.id);
+            // this.focusedParent.setAttribute('aria-activedescendant', a.id);
+            // this.$button[0].setAttribute('aria-activedescendant', a.id);
+            this.$button[0].setAttribute('aria-activedescendant', li.id);
             li.classList.add('active');
             a.classList.add('active');
           }
@@ -1773,9 +1788,10 @@
           });
         }
 
-        if (next) {
+        // NL commented out, ends with divider
+        // if (next) {
           addDivider({ optID: optID });
-        }
+        //}
       }
 
       for (var len = selectOptions.length, i = startIndex; i < len; i++) {
@@ -1843,9 +1859,11 @@
               item.optID
             );
 
-            if (liElement.firstChild) {
-              liElement.firstChild.id = that.selectId + '-' + item.index;
-            }
+            // if (liElement.firstChild) {
+            //   liElement.firstChild.id = that.selectId + '-' + item.index;
+            // }
+
+            liElement.id = that.selectId + '-' + item.index;
 
             break;
 
@@ -2529,6 +2547,9 @@
      * @param {boolean} selected - true if the option is being selected, false if being deselected
      */
     setSelected: function (liData, selected) {
+      // console.log(liData);
+      // console.log(selected);
+
       selected = selected === undefined ? liData.selected : selected;
 
       var li = liData.element,
@@ -2564,6 +2585,16 @@
 
       li.classList.toggle('selected', selected);
 
+      if (selected) {
+        li.setAttribute('aria-selected', true);
+      } else {
+        if (this.multiple) {
+          li.setAttribute('aria-selected', false);
+        } else {
+          li.removeAttribute('aria-selected');
+        }
+      }
+
       if (keepActive) {
         this.focusItem(li, liData);
         this.selectpicker.view.currentActive = li;
@@ -2572,18 +2603,9 @@
         this.defocusItem(li);
       }
 
+      // TODO remove <a>
       if (a) {
         a.classList.toggle('selected', selected);
-
-        if (selected) {
-          a.setAttribute('aria-selected', true);
-        } else {
-          if (this.multiple) {
-            a.setAttribute('aria-selected', false);
-          } else {
-            a.removeAttribute('aria-selected');
-          }
-        }
       }
 
       if (!keepActive && !activeElementIsSet && selected && this.prevActiveElement !== undefined) {
@@ -2613,10 +2635,11 @@
 
         if (disabled) {
           a.setAttribute('aria-disabled', disabled);
-          a.setAttribute('tabindex', -1);
+          // a.setAttribute('tabindex', -1);
         } else {
           a.removeAttribute('aria-disabled');
-          a.setAttribute('tabindex', 0);
+          // no need to have options in tab index
+          // a.setAttribute('tabindex', 0);
         }
       }
     },
@@ -2737,7 +2760,7 @@
       });
 
       // ensure posinset and setsize are correct before selecting an option via a click
-      this.$menuInner.on('mouseenter', 'li a', function (e) {
+      this.$menuInner.on('mouseenter', 'li .dropdown-item', function (e) {
         var hoverLi = this.parentElement,
             position0 = that.isVirtual() ? that.selectpicker.view.position0 : 0,
             index = Array.prototype.indexOf.call(hoverLi.parentElement.children, hoverLi),
@@ -2746,7 +2769,7 @@
         that.focusItem(hoverLi, hoverData, true);
       });
 
-      this.$menuInner.on('click', 'li a', function (e, retainActive) {
+      this.$menuInner.on('click', 'li .dropdown-item', function (e, retainActive) {
         var $this = $(this),
             element = that.$element[0],
             position0 = that.isVirtual() ? that.selectpicker.view.position0 : 0,
@@ -2877,7 +2900,7 @@
         }
       });
 
-      this.$menu.on('click', 'li.' + classNames.DISABLED + ' a, .' + classNames.POPOVERHEADER + ', .' + classNames.POPOVERHEADER + ' :not(.close)', function (e) {
+      this.$menu.on('click', 'li.' + classNames.DISABLED + ' .dropdown-item, .' + classNames.POPOVERHEADER + ', .' + classNames.POPOVERHEADER + ' :not(.close)', function (e) {
         if (e.currentTarget == this) {
           e.preventDefault();
           e.stopPropagation();
@@ -2924,27 +2947,29 @@
         }
       });
 
-      this.$button
-        .on('focus' + EVENT_KEY, function (e) {
-          var tabindex = that.$element[0].getAttribute('tabindex');
-
-          // only change when button is actually focused
-          if (tabindex !== undefined && e.originalEvent && e.originalEvent.isTrusted) {
-            // apply select element's tabindex to ensure correct order is followed when tabbing to the next element
-            this.setAttribute('tabindex', tabindex);
-            // set element's tabindex to -1 to allow for reverse tabbing
-            that.$element[0].setAttribute('tabindex', -1);
-            that.selectpicker.view.tabindex = tabindex;
-          }
-        })
-        .on('blur' + EVENT_KEY, function (e) {
-          // revert everything to original tabindex
-          if (that.selectpicker.view.tabindex !== undefined && e.originalEvent && e.originalEvent.isTrusted) {
-            that.$element[0].setAttribute('tabindex', that.selectpicker.view.tabindex);
-            this.setAttribute('tabindex', -1);
-            that.selectpicker.view.tabindex = undefined;
-          }
-        });
+      // this.$button
+      //   .on('focus' + EVENT_KEY, function (e) {
+      //     var tabindex = that.$element[0].getAttribute('tabindex');
+      //     // only change when button is actually focused
+      //     if (tabindex !== undefined && e.originalEvent && e.originalEvent.isTrusted) {
+      //       // removing this NL
+      //       // apply select element's tabindex to ensure correct order is followed when tabbing to the next element
+      //       // this.setAttribute('tabindex', tabindex);
+      //       // set element's tabindex to -1 to allow for reverse tabbing
+      //       // removing this NL
+      //       // that.$element[0].setAttribute('tabindex', -1);
+      //       // that.selectpicker.view.tabindex = tabindex;
+      //     }
+      //   })
+      //   .on('blur' + EVENT_KEY, function (e) {
+      //     // removing this NL
+      //     // revert everything to original tabindex
+      //     // if (that.selectpicker.view.tabindex !== undefined && e.originalEvent && e.originalEvent.isTrusted) {
+      //     //   that.$element[0].setAttribute('tabindex', that.selectpicker.view.tabindex);
+      //     //   this.setAttribute('tabindex', -1);
+      //     //   that.selectpicker.view.tabindex = undefined;
+      //     // }
+      //   });
 
       this.$element
         .on('change' + EVENT_KEY, function () {
@@ -3205,7 +3230,9 @@
           isArrowKey ||
           (e.which >= 48 && e.which <= 57) ||
           (e.which >= 96 && e.which <= 105) ||
-          (e.which >= 65 && e.which <= 90)
+          (e.which >= 65 && e.which <= 90) ||
+          e.which === keyCodes.SPACE ||
+          e.which === keyCodes.ENTER
         )
       ) {
         that.$button.trigger('click.bs.dropdown.data-api');
@@ -3221,7 +3248,21 @@
         that.$button.trigger('click.bs.dropdown.data-api').trigger('focus');
       }
 
-      if (isArrowKey) { // if up or down
+      //if the dropdown wasn't active, activte the first item when pushing space, enter or "down"
+      if (
+        !isActive &&
+        (
+          e.which === keyCodes.SPACE ||
+          e.which === keyCodes.ENTER ||
+          e.which === keyCodes.ARROW_DOWN
+        )
+      ) {
+        liActive = that.selectpicker.current.elements[0];
+
+        that.focusItem(liActive);
+      }
+
+      if (isArrowKey) { // if up or down, enter or space
         if (!$items.length) return;
 
         liActive = that.activeElement;
@@ -3338,7 +3379,8 @@
         if (matches.length) {
           var matchIndex = 0;
 
-          $items.removeClass('active').find('a').removeClass('active');
+          // TODO remove a
+          $items.removeClass('active').find('dropdown-item').removeClass('active');
 
           // either only one key has been pressed or they are all the same key
           if (keyHistory.length === 1) {
@@ -3379,18 +3421,23 @@
       }
 
       // Select focused option if "Enter", "Spacebar" or "Tab" (when selectOnTab is true) are pressed inside the menu.
+      // console.log('!that.selectpicker.keydown.keyHistory', !that.selectpicker.keydown.keyHistory);
+      // console.log('keyCodes.SPACE?', e.which === keyCodes.SPACE);
+      // console.log('keyCodes', e.which);
       if (
         isActive &&
         (
-          (e.which === keyCodes.SPACE && !that.selectpicker.keydown.keyHistory) ||
+          e.which === keyCodes.SPACE ||
           e.which === keyCodes.ENTER ||
           (e.which === keyCodes.TAB && that.options.selectOnTab)
         )
       ) {
-        if (e.which !== keyCodes.SPACE) e.preventDefault();
-
-        if (!that.options.liveSearch || e.which !== keyCodes.SPACE) {
-          that.$menuInner.find('.active a').trigger('click', true); // retain active class
+        // if (e.which !== keyCodes.SPACE) e.preventDefault();
+        // console.log(e.which);
+        // on click of Enter of Space, activate that dropdown item.
+        if (!that.options.liveSearch && (e.which === keyCodes.ENTER || e.which == keyCodes.SPACE)) {
+          // console.log('clicked!');
+          that.$menuInner.find('.active .dropdown-item').trigger('click', true); // retain active class
           $this.trigger('focus');
 
           if (!that.options.liveSearch) {
@@ -3399,10 +3446,6 @@
             // Fixes spacebar selection of dropdown items in FF & IE
             $(document).data('spaceSelect', true);
           }
-        }
-        if (e.which === keyCodes.ENTER) {
-          // hide dropdown menu
-          that.dropdown.hide();
         }
       }
     },
